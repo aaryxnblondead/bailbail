@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register Account{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-form-container">
+        <h2>Create Account</h2>
+        <p>Join BailReckoner to access our complete set of tools</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password1">Password</label>
+                <input type="password" id="password1" name="password1" required>
+            </div>
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input type="password" id="password2" name="password2" required>
+            </div>
+            <div class="form-group">
+                <label for="user_type">Account Type</label>
+                <select id="user_type" name="user_type" class="form-control" required>
+                    <option value="lawyer">Lawyer</option>
+                    <option value="judge">Judge</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+        
+       
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 200px);
+        padding: 40px 0;
+    }
+    
+    .login-form-container {
+        background-color: white;
+        padding: 40px;
+        border-radius: 4px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .login-form-container h2 {
+        margin-bottom: 10px;
+    }
+    
+    .login-form-container p {
+        margin-bottom: 20px;
+        color: #666;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+    }
+    
+    .btn-primary {
+        background-color: #ffc580;
+        color: #333;
+    }
+    
+    .btn-primary:hover {
+        background-color: #ffb366;
+    }
+    
+    .login-links {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .login-links a {
+        color: #007bff;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}

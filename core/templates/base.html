@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BailReckoner - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* Styles for user dropdown menu */
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .user-dropdown-toggle:hover {
+            color: #000;
+        }
+
+        .user-icon {
+            margin-right: 5px;
+            width: 24px;
+            height: 24px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            padding: 10px 0;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding: 10px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+        }
+
+        .dropdown-item {
+            padding: 10px 20px;
+            text-decoration: none;
+            display: block;
+            color: var(--text-color);
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="navbar">
+                <div class="logo">
+                    <a href="{% url 'home' %}">BailReckoner</a>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="{% url 'dashboard' %}">Home</a></li>
+                        <li><a href="{% url 'incidents' %}">Incidents</a></li>
+                        <li><a href="{% url 'insights' %}">Insights</a></li>
+                        {% if user.is_authenticated %}
+                            <li class="user-dropdown">
+                                <div class="user-dropdown-toggle" id="userDropdownToggle">
+                                    <span class="user-icon">{{ user.username|slice:":1" }}</span>
+                                    <span>{{ user.username }}</span>
+                                </div>
+                                <div class="dropdown-content" id="userDropdownMenu">
+                                    <div class="dropdown-header">{{ user.username }}</div>
+                                    <a href="#" class="dropdown-item">My Profile</a>
+                                    <a href="#" class="dropdown-item">Settings</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li><a href="{% url 'register' %}" class="join-btn">Join</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 BailReckoner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        // Toggle user dropdown menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const userDropdownToggle = document.getElementById('userDropdownToggle');
+            const userDropdownMenu = document.getElementById('userDropdownMenu');
+            
+            if (userDropdownToggle) {
+                userDropdownToggle.addEventListener('click', function() {
+                    userDropdownMenu.classList.toggle('show');
+                });
+                
+                // Close the dropdown if clicked outside
+                window.addEventListener('click', function(event) {
+                    if (!event.target.matches('.user-dropdown-toggle') && 
+                        !event.target.closest('.user-dropdown-toggle')) {
+                        if (userDropdownMenu.classList.contains('show')) {
+                            userDropdownMenu.classList.remove('show');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

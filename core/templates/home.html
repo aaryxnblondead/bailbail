@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Welcome to BailReckoner</h1>
+                <p>Where Legal Precision Meets Compassion.</p>
+                <div class="hero-buttons">
+                    <a href="#services" class="btn btn-primary">Services</a>
+                    <a href="#learn-more" class="btn btn-secondary">Learn more</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{% static 'images/img1.png' %}" alt="BailReckoner illustration">
+                <div class="notify">Notify Authorities</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="login-section">
+    <div class="container">
+        <div class="login-cards">
+            <div class="login-card">
+                <h2>Lawyer Login</h2>
+                <p>Navigate Justice with Confidence</p>
+                <a href="{% url 'lawyer_login' %}" class="arrow-link">
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+            <div class="login-card">
+                <h2>Judge Login</h2>
+                <p>Deliver Justice with Precision</p>
+                <a href="{% url 'judge_login' %}" class="arrow-link">
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+            <div class="login-card">
+                <h2>Viewer Login</h2>
+                <p>Your Window to Justice</p>
+                <a href="{% url 'viewer_login' %}" class="arrow-link">
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section id="services">
+    <div class="container">
+        <h2>Our Services</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>Bail Calculation</h3>
+                <p>Precise and fair bail amount calculations based on case details and legal precedents.</p>
+            </div>
+            <div class="service-card">
+                <h3>Case Management</h3>
+                <p>Comprehensive tools for lawyers and judges to manage bail-related cases efficiently.</p>
+            </div>
+            <div class="service-card">
+                <h3>Legal Resources</h3>
+                <p>Access to relevant legal documents and precedents for informed decision making.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="learn-more">
+    <div class="container">
+        <h2>About BailReckoner</h2>
+        <p>BailReckoner is a state-of-the-art platform designed to bring fairness and accuracy to the bail determination process. Our system combines legal expertise with compassionate understanding to ensure justice is served while respecting the rights and dignity of all individuals involved.</p>
+    </div>
+</section>
+{% endblock %}
