@@ -3,6 +3,10 @@
 
 {% block title %}Home{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="hero">
     <div class="container">
@@ -16,7 +20,7 @@
                 </div>
             </div>
             <div class="hero-image">
-                <img src="{% static 'images/img1.png' %}" alt="BailReckoner illustration">
+                <img src="{% static 'images/courtcal.png' %}" alt="BailReckoner illustration">
                 <div class="notify">Notify Authorities</div>
             </div>
         </div>

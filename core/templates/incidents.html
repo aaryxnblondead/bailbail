@@ -20,7 +20,7 @@
                         <h3>{{ incident.title }}</h3>
                         <p class="incident-date">{{ incident.date_created|date:"F d, Y" }}</p>
                         <p class="incident-desc">{{ incident.description|truncatewords:30 }}</p>
-                        <a href="#" class="read-more">Read more →</a>
+                        <a href="{% url 'incident_detail' incident.id %}" class="read-more">Read more →</a>
                     </div>
                 {% endfor %}
             {% else %}
