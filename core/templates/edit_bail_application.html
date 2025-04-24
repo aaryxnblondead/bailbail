@@ -1,0 +1,581 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Bail Application{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Edit Bail Application</h1>
+        <a href="{% url 'bail_application_detail' application_id=application.id %}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+    <div class="form-container">
+        <div class="form-info-section">
+            <h2>Required Documents</h2>
+            <p>Please upload all required documents in PDF format:</p>
+            
+            <div class="document-requirements">
+                <div class="document-requirement {% if application.bail_application_form %}completed{% endif %}">
+                    <h3>Bail Application Form</h3>
+                    <p>Draft a bail application form specific to this case.</p>
+                    <a href="https://drive.google.com/file/d/1rhE3EuEUEUMsQ2YdyQ47993PLOmSDJxb/view?usp=sharing" target="_blank" class="btn btn-sm btn-outline">View Sample</a>
+                    {% if application.bail_application_form %}
+                        <div class="uploaded-info">
+                            <span class="uploaded-label">Current file:</span>
+                            <a href="{{ application.bail_application_form.url }}" target="_blank">{{ application.bail_application_form.name|truncatechars:30 }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="document-requirement {% if application.fir_copy %}completed{% endif %}">
+                    <h3>FIR Copy</h3>
+                    <p>Include a copy of the First Information Report from the police.</p>
+                    {% if application.fir_copy %}
+                        <div class="uploaded-info">
+                            <span class="uploaded-label">Current file:</span>
+                            <a href="{{ application.fir_copy.url }}" target="_blank">{{ application.fir_copy.name|truncatechars:30 }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="document-requirement {% if application.proof_of_address %}completed{% endif %}">
+                    <h3>Proof of Address</h3>
+                    <p>Include a copy of an address proof document (utility bill, lease, etc.).</p>
+                    {% if application.proof_of_address %}
+                        <div class="uploaded-info">
+                            <span class="uploaded-label">Current file:</span>
+                            <a href="{{ application.proof_of_address.url }}" target="_blank">{{ application.proof_of_address.name|truncatechars:30 }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="document-requirement {% if application.proof_of_identity %}completed{% endif %}">
+                    <h3>Proof of Identity</h3>
+                    <p>Include a copy of a government-issued ID.</p>
+                    {% if application.proof_of_identity %}
+                        <div class="uploaded-info">
+                            <span class="uploaded-label">Current file:</span>
+                            <a href="{{ application.proof_of_identity.url }}" target="_blank">{{ application.proof_of_identity.name|truncatechars:30 }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="document-requirement {% if application.affidavit_of_support %}completed{% endif %}">
+                    <h3>Affidavit of Support</h3>
+                    <p>Include an affidavit of support following legal requirements.</p>
+                    {% if application.affidavit_of_support %}
+                        <div class="uploaded-info">
+                            <span class="uploaded-label">Current file:</span>
+                            <a href="{{ application.affidavit_of_support.url }}" target="_blank">{{ application.affidavit_of_support.name|truncatechars:30 }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="document-requirement {% if application.character_reference %}completed{% endif %}">
+                    <h3>Personal Character Reference</h3>
+                    <p>Include a letter of character reference from a third party.</p>
+                    {% if application.character_reference %}
+                        <div class="uploaded-info">
+                            <span class="uploaded-label">Current file:</span>
+                            <a href="{{ application.character_reference.url }}" target="_blank">{{ application.character_reference.name|truncatechars:30 }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="document-requirement {% if application.criminal_history %}completed{% endif %}">
+                    <h3>Criminal History (if any)</h3>
+                    <p>Include documentation of criminal history if applicable.</p>
+                    {% if application.criminal_history %}
+                        <div class="uploaded-info">
+                            <span class="uploaded-label">Current file:</span>
+                            <a href="{{ application.criminal_history.url }}" target="_blank">{{ application.criminal_history.name|truncatechars:30 }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="document-notes">
+                <h3>Important Notes:</h3>
+                <ul>
+                    <li>All documents must be in PDF format</li>
+                    <li>You can save this application as a draft and complete it later</li>
+                    <li>All required documents must be uploaded before submission</li>
+                    <li>You can view a sample bail application <a href="https://drive.google.com/file/d/1rhE3EuEUEUMsQ2YdyQ47993PLOmSDJxb/view?usp=sharing" target="_blank">here</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group-container">
+                    <h3>Case Information</h3>
+                    <div class="form-group">
+                        <label for="{{ form.client_name.id_for_label }}">Client Name</label>
+                        {{ form.client_name }}
+                        {% if form.client_name.errors %}
+                            <div class="form-error">{{ form.client_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.case_number.id_for_label }}">Case Number</label>
+                        {{ form.case_number }}
+                        {% if form.case_number.errors %}
+                            <div class="form-error">{{ form.case_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.incident.id_for_label }}">Related Incident</label>
+                        {{ form.incident }}
+                        {% if form.incident.errors %}
+                            <div class="form-error">{{ form.incident.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.charges.id_for_label }}">Charges</label>
+                        {{ form.charges }}
+                        {% if form.charges.errors %}
+                            <div class="form-error">{{ form.charges.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.bail_amount_requested.id_for_label }}">Requested Bail Amount</label>
+                            {{ form.bail_amount_requested }}
+                            {% if form.bail_amount_requested.errors %}
+                                <div class="form-error">{{ form.bail_amount_requested.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.court_name.id_for_label }}">Court Name</label>
+                            {{ form.court_name }}
+                            {% if form.court_name.errors %}
+                                <div class="form-error">{{ form.court_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.hearing_date.id_for_label }}">Hearing Date</label>
+                        {{ form.hearing_date }}
+                        {% if form.hearing_date.errors %}
+                            <div class="form-error">{{ form.hearing_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group-container">
+                    <h3>Update Documents</h3>
+                    <div class="document-grid">
+                        <div class="document-upload">
+                            <label for="{{ form.bail_application_form.id_for_label }}">
+                                <div class="document-upload-box {% if application.bail_application_form %}has-file{% endif %}">
+                                    {% if application.bail_application_form %}
+                                        <span class="upload-icon">✓</span>
+                                        <span class="upload-text">{{ application.bail_application_form.name|truncatechars:20 }}</span>
+                                        <span class="upload-subtext">Click to replace</span>
+                                    {% else %}
+                                        <span class="upload-icon">+</span>
+                                        <span class="upload-text">Bail Application Form</span>
+                                        <span class="upload-subtext">PDF format only</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {{ form.bail_application_form }}
+                            {% if form.bail_application_form.help_text %}
+                                <div class="form-help">{{ form.bail_application_form.help_text }}</div>
+                            {% endif %}
+                            {% if form.bail_application_form.errors %}
+                                <div class="form-error">{{ form.bail_application_form.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="document-upload">
+                            <label for="{{ form.fir_copy.id_for_label }}">
+                                <div class="document-upload-box {% if application.fir_copy %}has-file{% endif %}">
+                                    {% if application.fir_copy %}
+                                        <span class="upload-icon">✓</span>
+                                        <span class="upload-text">{{ application.fir_copy.name|truncatechars:20 }}</span>
+                                        <span class="upload-subtext">Click to replace</span>
+                                    {% else %}
+                                        <span class="upload-icon">+</span>
+                                        <span class="upload-text">FIR Copy</span>
+                                        <span class="upload-subtext">PDF format only</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {{ form.fir_copy }}
+                            {% if form.fir_copy.help_text %}
+                                <div class="form-help">{{ form.fir_copy.help_text }}</div>
+                            {% endif %}
+                            {% if form.fir_copy.errors %}
+                                <div class="form-error">{{ form.fir_copy.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="document-upload">
+                            <label for="{{ form.proof_of_address.id_for_label }}">
+                                <div class="document-upload-box {% if application.proof_of_address %}has-file{% endif %}">
+                                    {% if application.proof_of_address %}
+                                        <span class="upload-icon">✓</span>
+                                        <span class="upload-text">{{ application.proof_of_address.name|truncatechars:20 }}</span>
+                                        <span class="upload-subtext">Click to replace</span>
+                                    {% else %}
+                                        <span class="upload-icon">+</span>
+                                        <span class="upload-text">Proof of Address</span>
+                                        <span class="upload-subtext">PDF format only</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {{ form.proof_of_address }}
+                            {% if form.proof_of_address.help_text %}
+                                <div class="form-help">{{ form.proof_of_address.help_text }}</div>
+                            {% endif %}
+                            {% if form.proof_of_address.errors %}
+                                <div class="form-error">{{ form.proof_of_address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="document-upload">
+                            <label for="{{ form.proof_of_identity.id_for_label }}">
+                                <div class="document-upload-box {% if application.proof_of_identity %}has-file{% endif %}">
+                                    {% if application.proof_of_identity %}
+                                        <span class="upload-icon">✓</span>
+                                        <span class="upload-text">{{ application.proof_of_identity.name|truncatechars:20 }}</span>
+                                        <span class="upload-subtext">Click to replace</span>
+                                    {% else %}
+                                        <span class="upload-icon">+</span>
+                                        <span class="upload-text">Proof of Identity</span>
+                                        <span class="upload-subtext">PDF format only</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {{ form.proof_of_identity }}
+                            {% if form.proof_of_identity.help_text %}
+                                <div class="form-help">{{ form.proof_of_identity.help_text }}</div>
+                            {% endif %}
+                            {% if form.proof_of_identity.errors %}
+                                <div class="form-error">{{ form.proof_of_identity.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="document-upload">
+                            <label for="{{ form.affidavit_of_support.id_for_label }}">
+                                <div class="document-upload-box {% if application.affidavit_of_support %}has-file{% endif %}">
+                                    {% if application.affidavit_of_support %}
+                                        <span class="upload-icon">✓</span>
+                                        <span class="upload-text">{{ application.affidavit_of_support.name|truncatechars:20 }}</span>
+                                        <span class="upload-subtext">Click to replace</span>
+                                    {% else %}
+                                        <span class="upload-icon">+</span>
+                                        <span class="upload-text">Affidavit of Support</span>
+                                        <span class="upload-subtext">PDF format only</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {{ form.affidavit_of_support }}
+                            {% if form.affidavit_of_support.help_text %}
+                                <div class="form-help">{{ form.affidavit_of_support.help_text }}</div>
+                            {% endif %}
+                            {% if form.affidavit_of_support.errors %}
+                                <div class="form-error">{{ form.affidavit_of_support.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="document-upload">
+                            <label for="{{ form.character_reference.id_for_label }}">
+                                <div class="document-upload-box {% if application.character_reference %}has-file{% endif %}">
+                                    {% if application.character_reference %}
+                                        <span class="upload-icon">✓</span>
+                                        <span class="upload-text">{{ application.character_reference.name|truncatechars:20 }}</span>
+                                        <span class="upload-subtext">Click to replace</span>
+                                    {% else %}
+                                        <span class="upload-icon">+</span>
+                                        <span class="upload-text">Character Reference</span>
+                                        <span class="upload-subtext">PDF format only</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {{ form.character_reference }}
+                            {% if form.character_reference.help_text %}
+                                <div class="form-help">{{ form.character_reference.help_text }}</div>
+                            {% endif %}
+                            {% if form.character_reference.errors %}
+                                <div class="form-error">{{ form.character_reference.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="document-upload">
+                            <label for="{{ form.criminal_history.id_for_label }}">
+                                <div class="document-upload-box {% if application.criminal_history %}has-file{% endif %}">
+                                    {% if application.criminal_history %}
+                                        <span class="upload-icon">✓</span>
+                                        <span class="upload-text">{{ application.criminal_history.name|truncatechars:20 }}</span>
+                                        <span class="upload-subtext">Click to replace</span>
+                                    {% else %}
+                                        <span class="upload-icon">+</span>
+                                        <span class="upload-text">Criminal History</span>
+                                        <span class="upload-subtext">If applicable, PDF format only</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {{ form.criminal_history }}
+                            {% if form.criminal_history.help_text %}
+                                <div class="form-help">{{ form.criminal_history.help_text }}</div>
+                            {% endif %}
+                            {% if form.criminal_history.errors %}
+                                <div class="form-error">{{ form.criminal_history.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Application</button>
+                    <a href="{% url 'bail_application_detail' application_id=application.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .form-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+    }
+    
+    .form-info-section, .form-section {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        padding: 20px;
+    }
+    
+    .document-requirements {
+        margin-top: 20px;
+    }
+    
+    .document-requirement {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .document-requirement h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+    
+    .document-requirement p {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    
+    .document-requirement.completed h3 {
+        color: #4caf50;
+    }
+    
+    .uploaded-info {
+        margin-top: 5px;
+        font-size: 12px;
+        background-color: #f1f8e9;
+        border-radius: 4px;
+        padding: 5px 10px;
+    }
+    
+    .uploaded-label {
+        font-weight: 500;
+        margin-right: 5px;
+    }
+    
+    .document-notes {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+    }
+    
+    .document-notes h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    
+    .document-notes ul {
+        padding-left: 20px;
+    }
+    
+    .document-notes li {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+    
+    .form-group-container {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .form-group-container h3 {
+        margin-bottom: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .form-help {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .form-error {
+        color: #f44336;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    
+    .document-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    
+    .document-upload input[type="file"] {
+        display: none;
+    }
+    
+    .document-upload-box {
+        border: 2px dashed #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .document-upload-box:hover {
+        border-color: #2196f3;
+        background-color: #f5f5f5;
+    }
+    
+    .document-upload-box.has-file {
+        border-color: #4caf50;
+        background-color: #f1f8e9;
+    }
+    
+    .upload-icon {
+        display: block;
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #999;
+    }
+    
+    .document-upload-box.has-file .upload-icon {
+        color: #4caf50;
+    }
+    
+    .upload-text {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    
+    .upload-subtext {
+        display: block;
+        font-size: 12px;
+        color: #999;
+    }
+    
+    .form-actions {
+        margin-top: 20px;
+        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    .btn-outline {
+        background: none;
+        border: 1px solid #2196f3;
+        color: #2196f3;
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 1024px) {
+        .form-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .document-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 600px) {
+        .document-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    // Display filename when file is selected
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const fileName = this.files[0]?.name;
+                const uploadBox = this.previousElementSibling.querySelector('.document-upload-box');
+                
+                if (fileName) {
+                    uploadBox.innerHTML = `
+                        <span class="upload-icon">✓</span>
+                        <span class="upload-text">${fileName}</span>
+                        <span class="upload-subtext">Click to change</span>
+                    `;
+                    uploadBox.classList.add('has-file');
+                    uploadBox.style.borderColor = '#4caf50';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

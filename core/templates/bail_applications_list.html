@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bail Applications{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>My Bail Applications</h1>
+        <a href="{% url 'create_bail_application' %}" class="btn btn-primary">New Bail Application</a>
+    </div>
+
+    <div class="applications-list">
+        {% if applications %}
+            <div class="application-grid">
+                <div class="application-headers">
+                    <div class="header-item">Client Name</div>
+                    <div class="header-item">Case Number</div>
+                    <div class="header-item">Date Created</div>
+                    <div class="header-item">Status</div>
+                    <div class="header-item">Documents</div>
+                    <div class="header-item">Actions</div>
+                </div>
+                
+                {% for application in applications %}
+                    <div class="application-row">
+                        <div class="application-item">{{ application.client_name }}</div>
+                        <div class="application-item">{{ application.case_number }}</div>
+                        <div class="application-item">{{ application.date_created|date:"M d, Y" }}</div>
+                        <div class="application-item">
+                            {% if application.status == 'draft' %}
+                                <span class="status-badge draft">Draft</span>
+                            {% elif application.status == 'submitted' %}
+                                <span class="status-badge submitted">Submitted</span>
+                            {% elif application.status == 'under_review' %}
+                                <span class="status-badge review">Under Review</span>
+                            {% elif application.status == 'approved' %}
+                                <span class="status-badge approved">Approved</span>
+                            {% elif application.status == 'rejected' %}
+                                <span class="status-badge rejected">Rejected</span>
+                            {% endif %}
+                        </div>
+                        <div class="application-item">
+                            {{ application.is_complete|yesno:"Complete,Incomplete" }}
+                        </div>
+                        <div class="application-item actions">
+                            <a href="{% url 'bail_application_detail' application_id=application.id %}" class="action-link">View</a>
+                            
+                            {% if application.status == 'draft' %}
+                                <a href="{% url 'edit_bail_application' application_id=application.id %}" class="action-link">Edit</a>
+                                <a href="{% url 'delete_bail_application' application_id=application.id %}" class="action-link delete">Delete</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <img src="{% static 'images/empty-state.svg' %}" alt="No Applications" onerror="this.src='https://via.placeholder.com/100?text=No+Applications'">
+                <h2>No Bail Applications Yet</h2>
+                <p>Create your first bail application to get started.</p>
+                <a href="{% url 'create_bail_application' %}" class="btn btn-primary">Create Application</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .application-grid {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    .application-headers {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+        background-color: #f5f5f5;
+        font-weight: bold;
+        padding: 15px;
+    }
+    
+    .application-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .application-row:last-child {
+        border-bottom: none;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
+    .status-badge.draft {
+        background-color: #e0e0e0;
+        color: #555;
+    }
+    
+    .status-badge.submitted {
+        background-color: #bbdefb;
+        color: #1565c0;
+    }
+    
+    .status-badge.review {
+        background-color: #fff8e1;
+        color: #f57f17;
+    }
+    
+    .status-badge.approved {
+        background-color: #c8e6c9;
+        color: #2e7d32;
+    }
+    
+    .status-badge.rejected {
+        background-color: #ffcdd2;
+        color: #c62828;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .action-link {
+        font-size: 14px;
+        color: #2196f3;
+        text-decoration: none;
+    }
+    
+    .action-link.delete {
+        color: #f44336;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .empty-state img {
+        width: 100px;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h2 {
+        margin-bottom: 10px;
+        color: #555;
+    }
+    
+    .empty-state p {
+        margin-bottom: 20px;
+        color: #777;
+    }
+</style>
+{% endblock %} 

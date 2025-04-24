@@ -1,0 +1,44 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# PDF and Office documents (comment these out if you want to include them)
+*.pdf
+*.docx
+*.doc
+*.xlsx
+*.xls
+*.pptx
+*.ppt 

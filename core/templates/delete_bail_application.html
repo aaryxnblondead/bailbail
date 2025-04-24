@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Bail Application{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="confirmation-card">
+        <div class="confirmation-icon">
+            <i class="warning-icon">!</i>
+        </div>
+        <h2>Delete Bail Application</h2>
+        <p>Are you sure you want to delete the bail application for <strong>{{ application.client_name }}</strong>?</p>
+        <p class="warning-text">This action cannot be undone. All uploaded documents and information will be permanently removed.</p>
+        
+        <div class="application-summary">
+            <div class="summary-item">
+                <span class="summary-label">Client Name:</span>
+                <span class="summary-value">{{ application.client_name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Case Number:</span>
+                <span class="summary-value">{{ application.case_number }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Date Created:</span>
+                <span class="summary-value">{{ application.date_created|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Application</button>
+                <a href="{% url 'bail_application_detail' application_id=application.id %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .confirmation-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        padding: 40px;
+        text-align: center;
+        max-width: 600px;
+        margin: 60px auto;
+    }
+    
+    .confirmation-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        position: relative;
+    }
+    
+    .warning-icon {
+        width: 80px;
+        height: 80px;
+        background-color: #fff3e0;
+        color: #ff9800;
+        font-size: 50px;
+        font-weight: bold;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-style: normal;
+    }
+    
+    .confirmation-card h2 {
+        color: #e53935;
+        margin-bottom: 20px;
+    }
+    
+    .warning-text {
+        color: #e53935;
+        font-weight: 500;
+        margin-bottom: 30px;
+    }
+    
+    .application-summary {
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+    
+    .summary-item {
+        margin-bottom: 10px;
+    }
+    
+    .summary-label {
+        font-weight: 500;
+        margin-right: 10px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .btn-danger {
+        background-color: #e53935;
+        color: white;
+        border: none;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c62828;
+    }
+</style>
+{% endblock %} 

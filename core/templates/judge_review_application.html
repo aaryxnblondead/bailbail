@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Review Bail Application{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/judge_styles.css' %}">
+<style>
+    .document-preview {
+        max-height: 200px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .decision-radio {
+        margin-right: 10px;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .status-submitted {
+        background-color: #17a2b8;
+        color: white;
+    }
+    
+    .status-under_review {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .status-approved {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .status-rejected {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            Application Review
+            <small class="text-muted">Case #{{ application.case_number }}</small>
+        </h1>
+        <span class="status-badge status-{{ application.status }}">{{ application.get_status_display }}</span>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Application Details -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Bail Application Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Client Information</h6>
+                            <p><strong>Name:</strong> {{ application.client_name }}</p>
+                            <p><strong>Case Number:</strong> {{ application.case_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Case Information</h6>
+                            <p><strong>Court:</strong> {{ application.court_name }}</p>
+                            <p><strong>Hearing Date:</strong> {% if application.hearing_date %}{{ application.hearing_date|date:"M d, Y" }}{% else %}Not specified{% endif %}</p>
+                            <p><strong>Requested Amount:</strong> {% if application.bail_amount_requested %}${{ application.bail_amount_requested }}{% else %}Not specified{% endif %}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6>Charges</h6>
+                            <p>{{ application.charges|default:"No charges specified" }}</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Incident Details -->
+            {% if application.incident %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Incident Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6>Title</h6>
+                            <p>{{ application.incident.title }}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Description</h6>
+                            <p>{{ application.incident.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Attached Documents -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Attached Documents</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% if application.bail_application_form %}
+                        <a href="{{ application.bail_application_form.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Bail Application Form</h6>
+                                <small>{{ application.bail_application_form.name|truncatechars:30 }}</small>
+                            </div>
+                            <p class="mb-1">Click to view document</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if application.fir_copy %}
+                        <a href="{{ application.fir_copy.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">FIR Copy</h6>
+                                <small>{{ application.fir_copy.name|truncatechars:30 }}</small>
+                            </div>
+                            <p class="mb-1">Click to view document</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if application.proof_of_address %}
+                        <a href="{{ application.proof_of_address.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Proof of Address</h6>
+                                <small>{{ application.proof_of_address.name|truncatechars:30 }}</small>
+                            </div>
+                            <p class="mb-1">Click to view document</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if application.proof_of_identity %}
+                        <a href="{{ application.proof_of_identity.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Proof of Identity</h6>
+                                <small>{{ application.proof_of_identity.name|truncatechars:30 }}</small>
+                            </div>
+                            <p class="mb-1">Click to view document</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if application.affidavit_of_support %}
+                        <a href="{{ application.affidavit_of_support.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Affidavit of Support</h6>
+                                <small>{{ application.affidavit_of_support.name|truncatechars:30 }}</small>
+                            </div>
+                            <p class="mb-1">Click to view document</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if application.character_reference %}
+                        <a href="{{ application.character_reference.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Character Reference</h6>
+                                <small>{{ application.character_reference.name|truncatechars:30 }}</small>
+                            </div>
+                            <p class="mb-1">Click to view document</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if application.criminal_history %}
+                        <a href="{{ application.criminal_history.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Criminal History</h6>
+                                <small>{{ application.criminal_history.name|truncatechars:30 }}</small>
+                            </div>
+                            <p class="mb-1">Click to view document</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if not application.bail_application_form and not application.fir_copy and not application.proof_of_address and not application.proof_of_identity and not application.affidavit_of_support and not application.character_reference and not application.criminal_history %}
+                        <div class="alert alert-warning">No documents have been uploaded for this application.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Status Update -->
+            {% if application.status == 'submitted' %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Update Status</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="mark_under_review">
+                        <p>Mark this application as "Under Review" to indicate you are reviewing it.</p>
+                        <button type="submit" class="btn btn-warning btn-block">Mark as Under Review</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Decision Form -->
+            {% if application.status == 'submitted' or application.status == 'under_review' %}
+            <div class="card mb-4 decision-panel">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-gavel"></i> Make Decision</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="make_decision">
+                        
+                        <!-- Decision Options Section -->
+                        <div class="decision-section">
+                            <div class="decision-section-title">
+                                <i class="fas fa-balance-scale"></i> Decision
+                            </div>
+                            
+                            <div class="decision-options">
+                                <label class="decision-radio-container" id="approve-container">
+                                    <input type="radio" name="decision" value="approved" required {% if form.decision.value == "approved" %}checked{% endif %}>
+                                    <span class="decision-radio-label">
+                                        <i class="fas fa-check-circle text-success"></i> Approve Bail
+                                    </span>
+                                </label>
+                                
+                                <label class="decision-radio-container" id="reject-container">
+                                    <input type="radio" name="decision" value="rejected" required {% if form.decision.value == "rejected" %}checked{% endif %}>
+                                    <span class="decision-radio-label">
+                                        <i class="fas fa-times-circle text-danger"></i> Reject Bail
+                                    </span>
+                                </label>
+                            </div>
+                            
+                            {% if form.decision.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.decision.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Bail Amount Section -->
+                        <div class="decision-section" id="bail-amount-section">
+                            <div class="decision-section-title">
+                                <i class="fas fa-dollar-sign"></i> Bail Amount
+                            </div>
+                            <p class="text-muted mb-3">
+                                <small>Required only if bail is approved</small>
+                            </p>
+                            
+                            <div class="amount-input-container">
+                                <input type="number" name="bail_amount" id="id_bail_amount" class="form-control amount-input" 
+                                    placeholder="Enter amount" value="{{ form.bail_amount.value|default:'' }}" 
+                                    step="0.01" min="0">
+                            </div>
+                            
+                            {% if form.bail_amount.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.bail_amount.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Comments Section -->
+                        <div class="decision-section">
+                            <div class="decision-section-title">
+                                <i class="fas fa-comment"></i> Comments
+                            </div>
+                            <p class="text-muted mb-3">
+                                <small>Provide a reason for your decision (optional but recommended)</small>
+                            </p>
+                            
+                            <div class="comments-container">
+                                <textarea name="comments" id="id_comments" class="form-control" 
+                                    placeholder="Enter your comments here...">{{ form.comments.value|default:'' }}</textarea>
+                            </div>
+                            
+                            {% if form.comments.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.comments.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block decision-submit-btn">
+                            <i class="fas fa-save"></i> Submit Decision
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Existing Decision -->
+            {% if existing_decision %}
+            <div class="card mb-4">
+                <div class="card-header bg-{% if existing_decision.decision == 'approved' %}success{% else %}danger{% endif %} text-white">
+                    <h5 class="mb-0">Decision Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Decision:</strong> 
+                        {% if existing_decision.decision == 'approved' %}
+                            <span class="text-success">Approved</span>
+                        {% else %}
+                            <span class="text-danger">Rejected</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Date:</strong> {{ existing_decision.decision_date|date:"M d, Y H:i" }}</p>
+                    
+                    {% if existing_decision.decision == 'approved' %}
+                    <p><strong>Bail Amount:</strong> ${{ existing_decision.bail_amount }}</p>
+                    {% endif %}
+                    
+                    <p><strong>Comments:</strong></p>
+                    <div class="border p-2 bg-light">
+                        {{ existing_decision.comments|default:"No comments provided." }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'judge_applications_list' %}" class="btn btn-secondary btn-block mb-2">Back to Applications</a>
+                    <a href="{% url 'judge_dashboard' %}" class="btn btn-outline-primary btn-block">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle bail amount field visibility based on decision
+    $(document).ready(function() {
+        function toggleBailAmount() {
+            var decision = $('input[name="decision"]:checked').val();
+            
+            // Toggle approval/rejection styles
+            if (decision === 'approved') {
+                $('#bail-amount-section').slideDown(300);
+                $('#approve-container').addClass('active-approve');
+                $('#reject-container').removeClass('active-reject');
+            } else if (decision === 'rejected') {
+                $('#bail-amount-section').slideUp(300);
+                $('#approve-container').removeClass('active-approve');
+                $('#reject-container').addClass('active-reject');
+            } else {
+                $('#bail-amount-section').hide();
+                $('#approve-container').removeClass('active-approve');
+                $('#reject-container').removeClass('active-reject');
+            }
+        }
+        
+        // Initialize
+        toggleBailAmount();
+        
+        // Add event listener
+        $('input[name="decision"]').change(toggleBailAmount);
+        
+        // Add focus effects for comment section
+        $('#id_comments').focus(function() {
+            $(this).parent('.comments-container').css('border-color', '#007bff');
+        }).blur(function() {
+            $(this).parent('.comments-container').css('border-color', '#dee2e6');
+        });
+        
+        // Format the bail amount with $ symbol
+        $('#id_bail_amount').on('input', function() {
+            var value = $(this).val();
+            
+            // Remove any non-numeric characters except decimal point
+            value = value.replace(/[^0-9.]/g, '');
+            
+            // Ensure only one decimal point
+            var decimalCount = (value.match(/\./g) || []).length;
+            if (decimalCount > 1) {
+                value = value.substr(0, value.lastIndexOf('.'));
+            }
+            
+            // Update the value
+            $(this).val(value);
+        });
+    });
+</script>
+{% endblock %} 

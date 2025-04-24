@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Viewer Dashboard - Bail Applications{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background-color: #f8f9fa;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    
+    .application-card {
+        transition: all 0.2s ease;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+    }
+    
+    .application-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        padding: 1rem;
+    }
+    
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+    
+    .status-draft {
+        background-color: #e0e0e0;
+        color: #616161;
+    }
+    
+    .status-submitted {
+        background-color: #bbdefb;
+        color: #1976d2;
+    }
+    
+    .status-under_review {
+        background-color: #fff9c4;
+        color: #f57f17;
+    }
+    
+    .status-approved {
+        background-color: #c8e6c9;
+        color: #388e3c;
+    }
+    
+    .status-rejected {
+        background-color: #ffcdd2;
+        color: #d32f2f;
+    }
+    
+    .filter-section {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .filter-section .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .search-input {
+        border-radius: 2rem;
+        padding-left: 1rem;
+    }
+    
+    .info-card {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .info-card-count {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-card-title {
+        color: #6c757d;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+    }
+    
+    .no-applications {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 3rem;
+        text-align: center;
+    }
+    
+    .no-applications i {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .no-applications h4 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Bail Applications Dashboard</h1>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Case Number Search Form - Highlighted prominently -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Search by Case Number</h4>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-3">Enter a case number to view its bail application details and status.</p>
+            <form method="get" class="d-flex">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control form-control-lg" placeholder="Enter Case Number" value="{{ search_query }}" required>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary btn-lg">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if search_query %}
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Applications</h5>
+                        <h2 class="card-text">{{ total_applications }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Submitted</h5>
+                        <h2 class="card-text">{{ applications_submitted }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">Under Review</h5>
+                        <h2 class="card-text">{{ applications_submitted }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Approved</h5>
+                        <h2 class="card-text">{{ applications_approved }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Search Results for "{{ search_query }}"</h4>
+                {% if applications %}
+                <div class="d-flex">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Filter by Status
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                            <li><a class="dropdown-item {% if not status_filter %}active{% endif %}" href="?search={{ search_query }}{% if sort %}&sort={{ sort }}{% endif %}">All</a></li>
+                            <li><a class="dropdown-item {% if status_filter == 'submitted' %}active{% endif %}" href="?search={{ search_query }}&status=submitted{% if sort %}&sort={{ sort }}{% endif %}">Submitted</a></li>
+                            <li><a class="dropdown-item {% if status_filter == 'under_review' %}active{% endif %}" href="?search={{ search_query }}&status=under_review{% if sort %}&sort={{ sort }}{% endif %}">Under Review</a></li>
+                            <li><a class="dropdown-item {% if status_filter == 'approved' %}active{% endif %}" href="?search={{ search_query }}&status=approved{% if sort %}&sort={{ sort }}{% endif %}">Approved</a></li>
+                            <li><a class="dropdown-item {% if status_filter == 'rejected' %}active{% endif %}" href="?search={{ search_query }}&status=rejected{% if sort %}&sort={{ sort }}{% endif %}">Rejected</a></li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if applications %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <a href="?search={{ search_query }}&sort=case_number{% if sort == 'case_number' %}-desc{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                            Case Number
+                                            {% if sort == 'case_number' %}↑{% elif sort == 'case_number-desc' %}↓{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>Client Name</th>
+                                    <th>
+                                        <a href="?search={{ search_query }}&sort=submission_date{% if sort == 'submission_date' %}-desc{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                            Submission Date
+                                            {% if sort == 'submission_date' %}↑{% elif sort == 'submission_date-desc' %}↓{% endif %}
+                                        </a>
+                                    </th>
+                                    <th>Bail Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                    <tr>
+                                        <td>{{ application.case_number }}</td>
+                                        <td>{{ application.client_name }}</td>
+                                        <td>{{ application.date_created|date:"M d, Y" }}</td>
+                                        <td>${{ application.bail_amount_requested|default:"Not specified" }}</td>
+                                        <td>{{ application.get_status_display }}</td>
+                                        <td>
+                                            <a href="{% url 'viewer_application_detail' application.id %}?case_number={{ application.case_number }}" class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if applications.has_other_pages %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                {% if applications.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?search={{ search_query }}&page=1{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" aria-label="First">
+                                            <span aria-hidden="true">&laquo;&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?search={{ search_query }}&page={{ applications.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="First">
+                                            <span aria-hidden="true">&laquo;&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for i in applications.paginator.page_range %}
+                                    {% if applications.number == i %}
+                                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                                    {% elif i > applications.number|add:'-3' and i < applications.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?search={{ search_query }}&page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ i }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if applications.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?search={{ search_query }}&page={{ applications.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?search={{ search_query }}&page={{ applications.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" aria-label="Last">
+                                            <span aria-hidden="true">&raquo;&raquo;</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Last">
+                                            <span aria-hidden="true">&raquo;&raquo;</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info">
+                        No applications found with case number "{{ search_query }}". Please check the case number and try again.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="card mb-4">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search fa-4x text-muted"></i>
+                </div>
+                <h3>Enter a Case Number to View Bail Application</h3>
+                <p class="text-muted">You need to provide a case number to view bail application details and status.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

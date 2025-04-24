@@ -1,0 +1,277 @@
+/* Judge View Styles */
+
+/* Base styles */
+.badge.badge-primary {
+    background-color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Tab styles */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: -2px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #495057;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: #e9ecef #e9ecef #dee2e6;
+    color: var(--primary-color);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background-color: transparent;
+    border-color: transparent transparent var(--primary-color) transparent;
+}
+
+.nav-tabs .badge {
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* Table styles */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 121, 145, 0.075);
+    cursor: pointer;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-top: none;
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Status badges */
+.badge-info {
+    background-color: var(--cerulean);
+}
+
+.badge-warning {
+    background-color: var(--maize);
+    color: var(--coffee);
+}
+
+.badge-success {
+    background-color: var(--zomp);
+}
+
+.badge-danger {
+    background-color: var(--bittersweet);
+}
+
+/* Card styles */
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 1rem;
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #005970;
+    border-color: #005970;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* Alert styles */
+.alert-info {
+    background-color: rgba(0, 121, 145, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Table row status colors */
+.table-success {
+    background-color: rgba(67, 154, 134, 0.1);
+}
+
+.table-danger {
+    background-color: rgba(255, 120, 90, 0.1);
+}
+
+/* Decision panel styling */
+.decision-panel {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.decision-panel .card-header {
+    padding: 1.25rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.decision-panel .card-body {
+    padding: 1.5rem;
+}
+
+.decision-section {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.decision-section:last-child {
+    margin-bottom: 0;
+}
+
+.decision-section-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #495057;
+    display: flex;
+    align-items: center;
+}
+
+.decision-section-title i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.decision-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.decision-radio-container {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+}
+
+.decision-radio-container:hover {
+    background-color: rgba(0, 121, 145, 0.05);
+}
+
+.decision-radio-container.active-approve {
+    background-color: rgba(67, 154, 134, 0.1);
+    border-color: var(--zomp);
+}
+
+.decision-radio-container.active-reject {
+    background-color: rgba(255, 120, 90, 0.1);
+    border-color: var(--bittersweet);
+}
+
+.decision-radio-label {
+    margin-left: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+/* Bail amount styling */
+.amount-input-container {
+    position: relative;
+}
+
+.amount-input-container::before {
+    content: '$';
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #495057;
+    z-index: 5;
+}
+
+.amount-input {
+    padding-left: 2rem !important;
+}
+
+/* Comments styling */
+.comments-container {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.comments-container textarea {
+    border: none;
+    resize: vertical;
+    min-height: 120px;
+    padding: 1rem;
+}
+
+.comments-container textarea:focus {
+    box-shadow: none;
+    border-color: var(--primary-color);
+}
+
+/* Submit button styling */
+.decision-submit-btn {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.decision-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-responsive {
+        border: 0;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .decision-section {
+        padding: 1rem;
+    }
+    
+    .decision-radio-container {
+        padding: 0.75rem;
+    }
+} 

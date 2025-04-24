@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Judge Dashboard - Bail Applications{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Bail Applications Dashboard</h1>
+        <div class="judge-badge">
+            <span class="badge">Judge View</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Applications Pending Review</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Case Number</th>
+                        <th>Client Name</th>
+                        <th>Date Submitted</th>
+                        <th>Status</th>
+                        <th>Hearing Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                    <tr>
+                        <td>{{ application.case_number }}</td>
+                        <td>{{ application.client_name }}</td>
+                        <td>{{ application.date_created|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="status-badge status-{{ application.status }}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ application.hearing_date|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'judge_review_application' application_id=application.id %}" class="btn btn-primary btn-sm">Review</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No applications submitted for review</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .judge-badge .badge {
+        background-color: #7b1fa2;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .card-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table th {
+        font-weight: 600;
+        text-align: left;
+        padding: 12px 15px;
+        background-color: #f5f5f5;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .status-draft {
+        background-color: #e0e0e0;
+        color: #616161;
+    }
+    
+    .status-submitted {
+        background-color: #bbdefb;
+        color: #1976d2;
+    }
+    
+    .status-under_review {
+        background-color: #fff9c4;
+        color: #f57f17;
+    }
+    
+    .status-approved {
+        background-color: #c8e6c9;
+        color: #388e3c;
+    }
+    
+    .status-rejected {
+        background-color: #ffcdd2;
+        color: #d32f2f;
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .judge-badge {
+            margin-top: 10px;
+        }
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lawyer Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+    
+    .status-draft {
+        background-color: #e0e0e0;
+        color: #616161;
+    }
+    
+    .status-submitted {
+        background-color: #bbdefb;
+        color: #1976d2;
+    }
+    
+    .status-under_review {
+        background-color: #fff9c4;
+        color: #f57f17;
+    }
+    
+    .status-approved {
+        background-color: #c8e6c9;
+        color: #388e3c;
+    }
+    
+    .status-rejected {
+        background-color: #ffcdd2;
+        color: #d32f2f;
+    }
+    
+    .application-card {
+        transition: all 0.2s ease;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        height: 100%;
+    }
+    
+    .application-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        padding: 1rem;
+    }
+    
+    .stats-card {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-title {
+        color: #6c757d;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+    }
+    
+    .quick-action-btn {
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .progress-col {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .progress-bar-container {
+        height: 0.5rem;
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        border-radius: 0.25rem;
+    }
+    
+    .progress-draft {
+        width: {{ draft_applications.count|default:0 }}%;
+        background-color: #e0e0e0;
+    }
+    
+    .progress-submitted {
+        width: {{ submitted_applications.count|default:0 }}%;
+        background-color: #bbdefb;
+    }
+    
+    .progress-under_review {
+        width: {{ under_review_applications.count|default:0 }}%;
+        background-color: #fff9c4;
+    }
+    
+    .progress-approved {
+        width: {{ approved_applications.count|default:0 }}%;
+        background-color: #c8e6c9;
+    }
+    
+    .progress-rejected {
+        width: {{ rejected_applications.count|default:0 }}%;
+        background-color: #ffcdd2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Lawyer Dashboard</h1>
+        <a href="{% url 'create_bail_application' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Application
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ draft_applications.count|default:0 }}</div>
+                <div class="stats-title">Drafts</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ submitted_applications.count|default:0 }}</div>
+                <div class="stats-title">Submitted</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ under_review_applications.count|default:0 }}</div>
+                <div class="stats-title">Under Review</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stats-number">{{ approved_applications.count|default:0 }}</div>
+                <div class="stats-title">Approved</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Bar Row -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Applications Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress-bar-container">
+                        <div class="d-flex">
+                            <div class="progress-bar progress-draft"></div>
+                            <div class="progress-bar progress-submitted"></div>
+                            <div class="progress-bar progress-under_review"></div>
+                            <div class="progress-bar progress-approved"></div>
+                            <div class="progress-bar progress-rejected"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="mr-2" style="width: 1rem; height: 1rem; background-color: #e0e0e0; border-radius: 50%;"></div>
+                            <span>Draft</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="mr-2" style="width: 1rem; height: 1rem; background-color: #bbdefb; border-radius: 50%;"></div>
+                            <span>Submitted</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="mr-2" style="width: 1rem; height: 1rem; background-color: #fff9c4; border-radius: 50%;"></div>
+                            <span>Under Review</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="mr-2" style="width: 1rem; height: 1rem; background-color: #c8e6c9; border-radius: 50%;"></div>
+                            <span>Approved</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="mr-2" style="width: 1rem; height: 1rem; background-color: #ffcdd2; border-radius: 50%;"></div>
+                            <span>Rejected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Row -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'create_bail_application' %}" class="btn btn-primary btn-block quick-action-btn">
+                        <i class="fas fa-plus-circle mr-2"></i> New Application
+                    </a>
+                    <a href="{% url 'bail_applications_list' %}" class="btn btn-outline-primary btn-block quick-action-btn">
+                        <i class="fas fa-list mr-2"></i> View All Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Applications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Client Name</th>
+                                    <th>Case Number</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in draft_applications|slice:":3" %}
+                                <tr>
+                                    <td>{{ application.client_name }}</td>
+                                    <td>{{ application.case_number }}</td>
+                                    <td><span class="status-badge status-{{ application.status }}">{{ application.get_status_display }}</span></td>
+                                    <td>{{ application.date_created|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent applications</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draft Applications Row -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">Draft Applications</h4>
+        </div>
+        
+        {% if draft_applications %}
+            {% for application in draft_applications|slice:":3" %}
+            <div class="col-md-4 mb-4">
+                <div class="card application-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ application.client_name }}</h5>
+                        <span class="status-badge status-{{ application.status }}">{{ application.get_status_display }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Case Number:</strong> {{ application.case_number }}</p>
+                        <p><strong>Date Created:</strong> {{ application.date_created|date:"M d, Y" }}</p>
+                        {% if application.bail_amount_requested %}
+                        <p><strong>Amount Requested:</strong> ${{ application.bail_amount_requested }}</p>
+                        {% endif %}
+                        <div class="mt-3">
+                            <a href="{% url 'bail_application_detail' application_id=application.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                            <a href="{% url 'edit_bail_application' application_id=application.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if draft_applications.count > 3 %}
+            <div class="col-12 text-center mt-2">
+                <a href="{% url 'bail_applications_list' %}" class="btn btn-outline-primary">View All Draft Applications</a>
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                You don't have any draft applications. <a href="{% url 'create_bail_application' %}">Create a new application</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Active Applications Row -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">Active Applications</h4>
+        </div>
+        
+        {% if submitted_applications|length > 0 or under_review_applications|length > 0 %}
+            {% for application in submitted_applications|slice:":2" %}
+            <div class="col-md-4 mb-4">
+                <div class="card application-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ application.client_name }}</h5>
+                        <span class="status-badge status-{{ application.status }}">{{ application.get_status_display }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Case Number:</strong> {{ application.case_number }}</p>
+                        <p><strong>Date Submitted:</strong> {{ application.updated_at|date:"M d, Y" }}</p>
+                        {% if application.bail_amount_requested %}
+                        <p><strong>Amount Requested:</strong> ${{ application.bail_amount_requested }}</p>
+                        {% endif %}
+                        <div class="mt-3">
+                            <a href="{% url 'bail_application_detail' application_id=application.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% for application in under_review_applications|slice:":2" %}
+            <div class="col-md-4 mb-4">
+                <div class="card application-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ application.client_name }}</h5>
+                        <span class="status-badge status-{{ application.status }}">{{ application.get_status_display }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Case Number:</strong> {{ application.case_number }}</p>
+                        <p><strong>Date Updated:</strong> {{ application.updated_at|date:"M d, Y" }}</p>
+                        {% if application.bail_amount_requested %}
+                        <p><strong>Amount Requested:</strong> ${{ application.bail_amount_requested }}</p>
+                        {% endif %}
+                        <div class="mt-3">
+                            <a href="{% url 'bail_application_detail' application_id=application.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if submitted_applications.count > 2 or under_review_applications.count > 2 %}
+            <div class="col-12 text-center mt-2">
+                <a href="{% url 'bail_applications_list' %}" class="btn btn-outline-primary">View All Active Applications</a>
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                You don't have any active applications.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Calculate percentages for progress bar based on total applications
+        var total = {{ draft_applications.count|default:0 }} + 
+                    {{ submitted_applications.count|default:0 }} + 
+                    {{ under_review_applications.count|default:0 }} + 
+                    {{ approved_applications.count|default:0 }} + 
+                    {{ rejected_applications.count|default:0 }};
+        
+        if (total > 0) {
+            $('.progress-draft').css('width', ({{ draft_applications.count|default:0 }} / total * 100) + '%');
+            $('.progress-submitted').css('width', ({{ submitted_applications.count|default:0 }} / total * 100) + '%');
+            $('.progress-under_review').css('width', ({{ under_review_applications.count|default:0 }} / total * 100) + '%');
+            $('.progress-approved').css('width', ({{ approved_applications.count|default:0 }} / total * 100) + '%');
+            $('.progress-rejected').css('width', ({{ rejected_applications.count|default:0 }} / total * 100) + '%');
+        }
+    });
+</script>
+{% endblock %} 

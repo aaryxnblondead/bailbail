@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            Bail Application Details
+            <small class="text-muted">Case #{{ application.case_number }}</small>
+        </h1>
+        <span class="badge badge-{{ application.status }} px-3 py-2">{{ application.get_status_display }}</span>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Application Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Application Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Client Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>{{ application.client_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Case Number:</th>
+                                    <td>{{ application.case_number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Lawyer:</th>
+                                    <td>{{ application.lawyer_name }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Case Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Court:</th>
+                                    <td>{{ application.court_name|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Hearing Date:</th>
+                                    <td>{{ application.hearing_date|date:"M d, Y"|default:"Not scheduled" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Requested Amount:</th>
+                                    <td>{% if application.bail_amount_requested %}${{ application.bail_amount_requested }}{% else %}Not specified{% endif %}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6>Charges</h6>
+                            <div class="p-3 bg-light rounded">
+                                {{ application.charges|linebreaks|default:"No charges specified" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Application Timeline</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Submitted:</th>
+                                    <td>{{ application.date_created|date:"F d, Y" }}</td>
+                                </tr>
+                                {% if application.status == 'under_review' %}
+                                <tr>
+                                    <th>Under Review Since:</th>
+                                    <td>{{ application.updated_at|date:"F d, Y" }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if decision %}
+                                <tr>
+                                    <th>Decision Date:</th>
+                                    <td>{{ decision.decision_date|date:"F d, Y" }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incident Details -->
+            {% if application.incident %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Incident Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6>Title</h6>
+                            <p>{{ application.incident.title }}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Description</h6>
+                            <div class="p-3 bg-light rounded">
+                                {{ application.incident.description|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <!-- Status Information -->
+            <div class="card mb-4">
+                <div class="card-header {% if application.status == 'approved' %}bg-success{% elif application.status == 'rejected' %}bg-danger{% elif application.status == 'under_review' %}bg-warning{% else %}bg-info{% endif %} text-white">
+                    <h5 class="mb-0">Application Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <span class="status-badge status-{{ application.status }} px-3 py-2">
+                            {{ application.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    {% if application.status == 'submitted' %}
+                        <p class="alert alert-info">
+                            This application has been submitted and is awaiting a judge's review.
+                        </p>
+                    {% elif application.status == 'under_review' %}
+                        <p class="alert alert-warning">
+                            This application is currently being reviewed by a judge.
+                        </p>
+                    {% elif application.status == 'approved' %}
+                        <div class="alert alert-success">
+                            <p>This bail application has been <strong>approved</strong>.</p>
+                            {% if decision.bail_amount %}
+                                <p class="mb-0">Bail Amount: <strong>${{ decision.bail_amount }}</strong></p>
+                            {% endif %}
+                        </div>
+                    {% elif application.status == 'rejected' %}
+                        <p class="alert alert-danger">
+                            This bail application has been <strong>rejected</strong>.
+                        </p>
+                    {% endif %}
+                    
+                    {% if decision and decision.comments %}
+                        <h6 class="mt-3">Judge's Comments</h6>
+                        <div class="p-3 bg-light rounded">
+                            {{ decision.comments|linebreaks }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Document List -->
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Attached Documents</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% if application.bail_application_form %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Bail Application Form
+                                <span class="badge badge-primary">Submitted</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% if application.fir_copy %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                FIR Copy
+                                <span class="badge badge-primary">Submitted</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% if application.proof_of_address %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Proof of Address
+                                <span class="badge badge-primary">Submitted</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% if application.proof_of_identity %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Proof of Identity
+                                <span class="badge badge-primary">Submitted</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% if application.affidavit_of_support %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Affidavit of Support
+                                <span class="badge badge-primary">Submitted</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% if application.character_reference %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Character Reference
+                                <span class="badge badge-primary">Submitted</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% if application.criminal_history %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Criminal History
+                                <span class="badge badge-primary">Submitted</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4 mb-5">
+        <a href="{% url 'viewer_dashboard' %}?search={{ application.case_number }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Search Results
+        </a>
+    </div>
+</div>
+
+<style>
+    .status-badge {
+        font-weight: bold;
+        border-radius: 4px;
+    }
+    
+    .badge-submitted {
+        background-color: #17a2b8;
+        color: white;
+    }
+    
+    .badge-under_review {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .badge-approved {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .badge-rejected {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    table.table-borderless th {
+        width: 40%;
+        padding-left: 0;
+    }
+    
+    table.table-borderless td {
+        padding-right: 0;
+    }
+</style>
+{% endblock %} 

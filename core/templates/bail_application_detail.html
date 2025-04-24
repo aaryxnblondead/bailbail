@@ -1,0 +1,520 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bail Application Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Bail Application: {{ application.client_name }}</h1>
+        <div class="header-actions">
+            <a href="{% url 'bail_applications_list' %}" class="btn btn-secondary">Back to Applications</a>
+            {% if application.status == 'draft' %}
+                <a href="{% url 'edit_bail_application' application_id=application.id %}" class="btn btn-primary">Edit Application</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="application-status">
+        <div class="status-header">
+            <h3>Application Status</h3>
+            {% if application.status == 'draft' %}
+                <span class="status-badge draft">Draft</span>
+            {% elif application.status == 'submitted' %}
+                <span class="status-badge submitted">Submitted</span>
+            {% elif application.status == 'under_review' %}
+                <span class="status-badge review">Under Review</span>
+            {% elif application.status == 'approved' %}
+                <span class="status-badge approved">Approved</span>
+            {% elif application.status == 'rejected' %}
+                <span class="status-badge rejected">Rejected</span>
+            {% endif %}
+        </div>
+        
+        <div class="status-timeline">
+            <div class="timeline-item {% if application.status != 'draft' %}completed{% endif %}">
+                <div class="timeline-point"></div>
+                <div class="timeline-content">
+                    <h4>Draft</h4>
+                    <p>Application created on {{ application.date_created|date:"M d, Y" }}</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item {% if application.status == 'submitted' or application.status == 'under_review' or application.status == 'approved' or application.status == 'rejected' %}completed{% endif %}">
+                <div class="timeline-point"></div>
+                <div class="timeline-content">
+                    <h4>Submitted</h4>
+                    <p>{% if application.status == 'draft' %}Pending submission{% else %}Submitted for review{% endif %}</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item {% if application.status == 'under_review' or application.status == 'approved' or application.status == 'rejected' %}completed{% endif %}">
+                <div class="timeline-point"></div>
+                <div class="timeline-content">
+                    <h4>Under Review</h4>
+                    <p>{% if application.status == 'draft' or application.status == 'submitted' %}Waiting for review{% else %}Application under review{% endif %}</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item {% if application.status == 'approved' or application.status == 'rejected' %}completed{% endif %}">
+                <div class="timeline-point"></div>
+                <div class="timeline-content">
+                    <h4>Decision</h4>
+                    <p>{% if application.status == 'approved' %}Application approved{% elif application.status == 'rejected' %}Application rejected{% else %}Waiting for decision{% endif %}</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if application.status == 'draft' and application.is_complete %}
+            <div class="submission-action">
+                <p>All required documents have been uploaded. You can now submit this application for review.</p>
+                <form method="post" action="{% url 'submit_bail_application' application_id=application.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Submit Application</button>
+                </form>
+            </div>
+        {% elif application.status == 'draft' and not application.is_complete %}
+            <div class="submission-action incomplete">
+                <p>Please upload all required documents before submitting this application.</p>
+                <a href="{% url 'edit_bail_application' application_id=application.id %}" class="btn btn-primary">Complete Application</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="application-details">
+        <div class="detail-section">
+            <h3>Case Information</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Client Name</span>
+                    <span class="detail-value">{{ application.client_name }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Case Number</span>
+                    <span class="detail-value">{{ application.case_number }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Related Incident</span>
+                    <span class="detail-value">{% if application.incident %}{{ application.incident.title }}{% else %}Not specified{% endif %}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Charges</span>
+                    <span class="detail-value">{% if application.charges %}{{ application.charges }}{% else %}Not specified{% endif %}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Requested Bail Amount</span>
+                    <span class="detail-value">{% if application.bail_amount_requested %}${{ application.bail_amount_requested }}{% else %}Not specified{% endif %}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Court Name</span>
+                    <span class="detail-value">{% if application.court_name %}{{ application.court_name }}{% else %}Not specified{% endif %}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Hearing Date</span>
+                    <span class="detail-value">{% if application.hearing_date %}{{ application.hearing_date|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Date Created</span>
+                    <span class="detail-value">{{ application.date_created|date:"M d, Y" }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Last Updated</span>
+                    <span class="detail-value">{{ application.updated_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-section">
+            <h3>Documents</h3>
+            <div class="documents-grid">
+                <div class="document-item {% if application.bail_application_form %}uploaded{% endif %}">
+                    <div class="document-icon">
+                        <i class="pdf-icon">{% if application.bail_application_form %}✓{% else %}!{% endif %}</i>
+                    </div>
+                    <div class="document-info">
+                        <h4>Bail Application Form</h4>
+                        {% if application.bail_application_form %}
+                            <a href="{{ application.bail_application_form.url }}" target="_blank" class="document-link">View Document</a>
+                        {% else %}
+                            <span class="document-missing">Not uploaded</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="document-item {% if application.fir_copy %}uploaded{% endif %}">
+                    <div class="document-icon">
+                        <i class="pdf-icon">{% if application.fir_copy %}✓{% else %}!{% endif %}</i>
+                    </div>
+                    <div class="document-info">
+                        <h4>FIR Copy</h4>
+                        {% if application.fir_copy %}
+                            <a href="{{ application.fir_copy.url }}" target="_blank" class="document-link">View Document</a>
+                        {% else %}
+                            <span class="document-missing">Not uploaded</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="document-item {% if application.proof_of_address %}uploaded{% endif %}">
+                    <div class="document-icon">
+                        <i class="pdf-icon">{% if application.proof_of_address %}✓{% else %}!{% endif %}</i>
+                    </div>
+                    <div class="document-info">
+                        <h4>Proof of Address</h4>
+                        {% if application.proof_of_address %}
+                            <a href="{{ application.proof_of_address.url }}" target="_blank" class="document-link">View Document</a>
+                        {% else %}
+                            <span class="document-missing">Not uploaded</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="document-item {% if application.proof_of_identity %}uploaded{% endif %}">
+                    <div class="document-icon">
+                        <i class="pdf-icon">{% if application.proof_of_identity %}✓{% else %}!{% endif %}</i>
+                    </div>
+                    <div class="document-info">
+                        <h4>Proof of Identity</h4>
+                        {% if application.proof_of_identity %}
+                            <a href="{{ application.proof_of_identity.url }}" target="_blank" class="document-link">View Document</a>
+                        {% else %}
+                            <span class="document-missing">Not uploaded</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="document-item {% if application.affidavit_of_support %}uploaded{% endif %}">
+                    <div class="document-icon">
+                        <i class="pdf-icon">{% if application.affidavit_of_support %}✓{% else %}!{% endif %}</i>
+                    </div>
+                    <div class="document-info">
+                        <h4>Affidavit of Support</h4>
+                        {% if application.affidavit_of_support %}
+                            <a href="{{ application.affidavit_of_support.url }}" target="_blank" class="document-link">View Document</a>
+                        {% else %}
+                            <span class="document-missing">Not uploaded</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="document-item {% if application.character_reference %}uploaded{% endif %}">
+                    <div class="document-icon">
+                        <i class="pdf-icon">{% if application.character_reference %}✓{% else %}!{% endif %}</i>
+                    </div>
+                    <div class="document-info">
+                        <h4>Character Reference</h4>
+                        {% if application.character_reference %}
+                            <a href="{{ application.character_reference.url }}" target="_blank" class="document-link">View Document</a>
+                        {% else %}
+                            <span class="document-missing">Not uploaded</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="document-item {% if application.criminal_history %}uploaded{% endif %}">
+                    <div class="document-icon">
+                        <i class="pdf-icon">{% if application.criminal_history %}✓{% else %}?{% endif %}</i>
+                    </div>
+                    <div class="document-info">
+                        <h4>Criminal History</h4>
+                        {% if application.criminal_history %}
+                            <a href="{{ application.criminal_history.url }}" target="_blank" class="document-link">View Document</a>
+                        {% else %}
+                            <span class="document-optional">Optional</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .application-status, .application-details, .detail-section {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
+    .status-badge.draft {
+        background-color: #e0e0e0;
+        color: #555;
+    }
+    
+    .status-badge.submitted {
+        background-color: #bbdefb;
+        color: #1565c0;
+    }
+    
+    .status-badge.review {
+        background-color: #fff8e1;
+        color: #f57f17;
+    }
+    
+    .status-badge.approved {
+        background-color: #c8e6c9;
+        color: #2e7d32;
+    }
+    
+    .status-badge.rejected {
+        background-color: #ffcdd2;
+        color: #c62828;
+    }
+    
+    .status-timeline {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+    }
+    
+    .status-timeline:before {
+        content: '';
+        position: absolute;
+        top: 24px;
+        left: 40px;
+        right: 40px;
+        height: 2px;
+        background-color: #e0e0e0;
+        z-index: 1;
+    }
+    
+    .timeline-item {
+        position: relative;
+        z-index: 2;
+        flex: 1;
+        text-align: center;
+    }
+    
+    .timeline-point {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: white;
+        border: 2px solid #e0e0e0;
+        margin: 0 auto 10px;
+        position: relative;
+        z-index: 3;
+    }
+    
+    .timeline-item.completed .timeline-point {
+        background-color: #4caf50;
+        border-color: #4caf50;
+    }
+    
+    .timeline-content h4 {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    .timeline-content p {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .submission-action {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #e8f5e9;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .submission-action.incomplete {
+        background-color: #fff8e1;
+    }
+    
+    .submission-action p {
+        margin: 0;
+    }
+    
+    .detail-section h3 {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    
+    .detail-value {
+        font-size: 16px;
+    }
+    
+    .documents-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .document-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+    
+    .document-item.uploaded {
+        border-color: #c8e6c9;
+        background-color: #f1f8e9;
+    }
+    
+    .document-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .pdf-icon {
+        font-size: 20px;
+        font-style: normal;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .uploaded .pdf-icon {
+        background-color: #4caf50;
+    }
+    
+    .document-item:not(.uploaded) .pdf-icon {
+        background-color: #f44336;
+    }
+    
+    .document-item .pdf-icon:contains('?') {
+        background-color: #2196f3;
+    }
+    
+    .document-info h4 {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    .document-link {
+        color: #2196f3;
+        font-size: 12px;
+        text-decoration: none;
+    }
+    
+    .document-missing {
+        color: #f44336;
+        font-size: 12px;
+    }
+    
+    .document-optional {
+        color: #2196f3;
+        font-size: 12px;
+    }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+        .detail-grid, .documents-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .header-actions {
+            width: 100%;
+        }
+        
+        .status-timeline {
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .status-timeline:before {
+            top: 0;
+            bottom: 0;
+            left: 10px;
+            right: auto;
+            width: 2px;
+            height: auto;
+        }
+        
+        .timeline-item {
+            text-align: left;
+            padding-left: 40px;
+        }
+        
+        .timeline-point {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0;
+        }
+        
+        .submission-action {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %} 

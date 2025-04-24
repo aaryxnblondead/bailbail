@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ incident.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'incidents' %}">Incidents</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ incident.title }}</li>
+                </ol>
+            </nav>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">{{ incident.title }}</h1>
+                </div>
+                <div class="card-body">
+                    <div class="incident-meta mb-4">
+                        <span class="text-muted">
+                            <i class="fas fa-calendar-alt mr-1"></i> 
+                            Reported on {{ incident.date_created|date:"F d, Y" }} at {{ incident.date_created|time:"H:i" }}
+                        </span>
+                        {% if incident.updated_at != incident.date_created %}
+                            <span class="text-muted ml-3">
+                                <i class="fas fa-edit mr-1"></i>
+                                Updated on {{ incident.updated_at|date:"F d, Y" }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="incident-content">
+                        <h5>Description</h5>
+                        <div class="bg-light p-3 rounded mb-4">
+                            {{ incident.description|linebreaks }}
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated and user.userprofile.user_type == 'lawyer' %}
+                        <div class="mt-4 border-top pt-4">
+                            <h5>Create Bail Application</h5>
+                            <p>You can create a bail application linked to this incident.</p>
+                            <a href="{% url 'create_bail_application' %}?incident={{ incident.id }}" class="btn btn-primary">
+                                <i class="fas fa-file-alt mr-2"></i>Create Bail Application
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="text-center mb-5">
+                <a href="{% url 'incidents' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Incidents
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .incident-meta {
+        font-size: 0.9rem;
+    }
+    
+    .incident-content {
+        line-height: 1.6;
+    }
+</style>
+{% endblock %} 

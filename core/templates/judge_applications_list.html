@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bail Applications{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/judge_styles.css' %}">
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Bail Applications</h1>
+        <div class="badge badge-primary p-2">Judge View</div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="mb-4">
+        <ul class="nav nav-tabs" id="applicationTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="submitted-tab" data-toggle="tab" href="#submitted" role="tab">
+                    New <span class="badge badge-info">{{ submitted_applications.count }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="under-review-tab" data-toggle="tab" href="#under-review" role="tab">
+                    Under Review <span class="badge badge-warning">{{ under_review_applications.count }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="approved-tab" data-toggle="tab" href="#approved" role="tab">
+                    Approved <span class="badge badge-success">{{ approved_applications.count }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="rejected-tab" data-toggle="tab" href="#rejected" role="tab">
+                    Rejected <span class="badge badge-danger">{{ rejected_applications.count }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content" id="applicationTabsContent">
+        <!-- Submitted Applications -->
+        <div class="tab-pane fade show active" id="submitted" role="tabpanel">
+            {% if submitted_applications %}
+            <div class="table-responsive">
+                <table class="table table-hover table-clickable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Case Number</th>
+                            <th>Client Name</th>
+                            <th>Submission Date</th>
+                            <th>Bail Amount Requested</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in submitted_applications %}
+                        <tr data-href="{% url 'judge_review_application' application.id %}">
+                            <td>{{ application.case_number }}</td>
+                            <td>{{ application.client_name }}</td>
+                            <td>{{ application.date_created|date:"M d, Y" }}</td>
+                            <td>${{ application.bail_amount_requested|default:"Not specified" }}</td>
+                            <td>
+                                <a href="{% url 'judge_review_application' application.id %}" class="btn btn-primary btn-sm">Review</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No new applications to review.</div>
+            {% endif %}
+        </div>
+
+        <!-- Under Review Applications -->
+        <div class="tab-pane fade" id="under-review" role="tabpanel">
+            {% if under_review_applications %}
+            <div class="table-responsive">
+                <table class="table table-hover table-clickable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Case Number</th>
+                            <th>Client Name</th>
+                            <th>Submission Date</th>
+                            <th>Bail Amount Requested</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in under_review_applications %}
+                        <tr data-href="{% url 'judge_review_application' application.id %}">
+                            <td>{{ application.case_number }}</td>
+                            <td>{{ application.client_name }}</td>
+                            <td>{{ application.date_created|date:"M d, Y" }}</td>
+                            <td>${{ application.bail_amount_requested|default:"Not specified" }}</td>
+                            <td>
+                                <a href="{% url 'judge_review_application' application.id %}" class="btn btn-primary btn-sm">Continue Review</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No applications currently under review.</div>
+            {% endif %}
+        </div>
+
+        <!-- Approved Applications -->
+        <div class="tab-pane fade" id="approved" role="tabpanel">
+            {% if approved_applications %}
+            <div class="table-responsive">
+                <table class="table table-hover table-clickable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Case Number</th>
+                            <th>Client Name</th>
+                            <th>Decision Date</th>
+                            <th>Bail Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in approved_applications %}
+                        <tr class="table-success" data-href="{% url 'judge_review_application' application.id %}">
+                            <td>{{ application.case_number }}</td>
+                            <td>{{ application.client_name }}</td>
+                            <td>{{ application.updated_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if application.judge_decision %}
+                                ${{ application.judge_decision.bail_amount }}
+                                {% else %}
+                                ${{ application.bail_amount_requested|default:"Not specified" }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'judge_review_application' application.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No approved applications.</div>
+            {% endif %}
+        </div>
+
+        <!-- Rejected Applications -->
+        <div class="tab-pane fade" id="rejected" role="tabpanel">
+            {% if rejected_applications %}
+            <div class="table-responsive">
+                <table class="table table-hover table-clickable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Case Number</th>
+                            <th>Client Name</th>
+                            <th>Decision Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in rejected_applications %}
+                        <tr class="table-danger" data-href="{% url 'judge_review_application' application.id %}">
+                            <td>{{ application.case_number }}</td>
+                            <td>{{ application.client_name }}</td>
+                            <td>{{ application.updated_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'judge_review_application' application.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No rejected applications.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Activate Bootstrap tabs
+    $(document).ready(function() {
+        $('#applicationTabs a').click(function(e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+        
+        // Maintain selected tab on page reload
+        var hash = window.location.hash;
+        if (hash) {
+            $('#applicationTabs a[href="' + hash + '"]').tab('show');
+        }
+        
+        // Update URL hash when tab changes
+        $('#applicationTabs a').on('shown.bs.tab', function(e) {
+            window.location.hash = e.target.hash;
+        });
+    });
+</script>
+{% endblock %} 
